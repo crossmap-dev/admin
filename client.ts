@@ -5,7 +5,7 @@ import { useEffect, useState } from 'preact/hooks';
 const worker = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
 
 
-const LoginForm = () => {
+const LoginForm = ({ setKeypair }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [processing, setProcessing] = useState(false);
@@ -16,6 +16,7 @@ const LoginForm = () => {
       switch (type) {
         case 'login': {
           setProcessing(false);
+          setKeypair(payload.keypair);
           console.log('keypair:', payload.keypair);
         }
       }
@@ -97,7 +98,23 @@ const LoginForm = () => {
 }
 
 
+const ShowKeyPair = ({ keypair }) => {
+  return h('div', null, [
+    h('h3', null, 'Public Key:'),
+    h('p', null, keypair.publicKeyBase64),
+    h('h3', null, 'Private Key:'),
+    h('p', null, keypair.privateKeyBase64),
+  ]);
+}
+
+
 const App = () => {
+  const [keypair, setKeypair] = useState(null);
+
+  const content = keypair
+    ? h(ShowKeyPair, { keypair })
+    : h(LoginForm, { setKeypair });
+
   return h('div', {
     style: {
       width: '100%',
@@ -131,7 +148,7 @@ const App = () => {
         alignItems: 'center',
       }
     }, [
-      h(LoginForm),
+      content,
     ]),
   ]);
 }

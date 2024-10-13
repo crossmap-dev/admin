@@ -3,11 +3,6 @@ import _sodium from 'libsodium-wrappers-sumo';
 await _sodium.ready;
 const sodium = _sodium;
 
-
-console.log('worker loaded');
-console.log('sodium:', sodium);
-
-
 onmessage = async (e) => {
   const { type, payload } = e.data;
   switch (type) {
@@ -21,7 +16,6 @@ onmessage = async (e) => {
       const keypair = sodium.crypto_sign_seed_keypair(seed);
       keypair.publicKeyBase64 = sodium.to_base64(keypair.publicKey);
       keypair.privateKeyBase64 = sodium.to_base64(keypair.privateKey);
-      console.log('keypair:', keypair);
       postMessage({ type: 'login', payload: { keypair } });
     }
   }
