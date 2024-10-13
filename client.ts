@@ -1,13 +1,43 @@
 import { h, render } from 'preact';
-import { useState } from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
 
 
-const SignUpForm = () => {
-  const [email, setEmail] = useState('');
+const worker = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
+
+
+const LoginForm = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [processing, setProcessing] = useState(false);
+
+  useEffect(() => {
+    worker.onmessage = (e) => {
+      const { type, payload } = e.data;
+      switch (type) {
+        case 'login': {
+          setProcessing(false);
+          console.log('keypair:', payload.keypair);
+        }
+      }
+    }
+  }, []);
+
+  if (processing) {
+    return h('div', {
+      style: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }
+    }, [
+      h('h3', null, 'Logging you in...')
+    ]);
+  }
 
   return h('form',
     {
-      id: 'signup-form',
+      id: 'login-form',
       style: {
         display: 'flex',
         flexDirection: 'row',
@@ -16,10 +46,24 @@ const SignUpForm = () => {
       }
     }, [
     h('input', {
-      id: 'email',
+      id: 'username',
       type: 'text',
-      placeholder: 'Email',
-      onInput: (e: any) => setEmail(e.target.value),
+      placeholder: 'Username',
+      onInput: (e: any) => setUsername(e.target.value),
+      style: {
+        display: 'inline-block',
+        color: 'inherit',
+        backgroundColor: 'inherit',
+        minWidth: '20rem',
+        border: 'none',
+        borderBottom: '1px solid',
+      }
+    }),
+    h('input', {
+      id: 'password',
+      type: 'password',
+      placeholder: 'Password',
+      onInput: (e: any) => setPassword(e.target.value),
       style: {
         display: 'inline-block',
         color: 'inherit',
@@ -30,18 +74,25 @@ const SignUpForm = () => {
       }
     }),
     h('button', {
-      id: 'signup-button',
+      id: 'login-button',
       type: 'submit',
       onClick: (e: any) => {
         e.preventDefault();
-        console.log(email);
+        setProcessing(true);
+        worker.postMessage({
+          type: 'login',
+          payload: {
+            username,
+            password,
+          }
+        });
       },
       style: {
         color: 'inherit',
         backgroundColor: 'inherit',
         border: 'none',
       }
-    }, 'Sign Up'),
+    }, 'Login'),
   ]);
 }
 
@@ -80,7 +131,7 @@ const App = () => {
         alignItems: 'center',
       }
     }, [
-      h(SignUpForm),
+      h(LoginForm),
     ]),
   ]);
 }

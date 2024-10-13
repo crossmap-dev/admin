@@ -1,7 +1,7 @@
 console.log('Building...');
 
 const result = await Bun.build({
-  entrypoints: ["./client.ts"],
+  entrypoints: ["./client.ts", "./worker.ts"],
   outdir: "./dist",
 })
 
