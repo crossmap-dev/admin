@@ -5,7 +5,7 @@ import { useEffect, useState } from 'preact/hooks';
 const worker = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
 
 
-const LoginForm = ({ setKeypair }) => {
+const LoginForm = ({ setAuth }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [processing, setProcessing] = useState(false);
@@ -16,8 +16,7 @@ const LoginForm = ({ setKeypair }) => {
       switch (type) {
         case 'login': {
           setProcessing(false);
-          setKeypair(payload.keypair);
-          console.log('keypair:', payload.keypair);
+          setAuth(payload);
         }
       }
     }
@@ -98,22 +97,26 @@ const LoginForm = ({ setKeypair }) => {
 }
 
 
-const ShowKeyPair = ({ keypair }) => {
+const ShowAuth = ({ auth: { user, session } }) => {
   return h('div', null, [
-    h('h3', null, 'Public Key:'),
-    h('p', null, keypair.publicKeyBase64),
-    h('h3', null, 'Private Key:'),
-    h('p', null, keypair.privateKeyBase64),
+    h('h3', null, 'User Public Key:'),
+    h('p', null, user.publicKeyBase64),
+    h('h3', null, 'User Private Key:'),
+    h('p', null, user.privateKeyBase64),
+    h('h3', null, 'Session Public Key:'),
+    h('p', null, session.publicKeyBase64),
+    h('h3', null, 'Session Private Key:'),
+    h('p', null, session.privateKeyBase64),
   ]);
 }
 
 
 const App = () => {
-  const [keypair, setKeypair] = useState(null);
+  const [auth, setAuth] = useState(null);
 
-  const content = keypair
-    ? h(ShowKeyPair, { keypair })
-    : h(LoginForm, { setKeypair });
+  const content = auth
+    ? h(ShowAuth, { auth })
+    : h(LoginForm, { setAuth });
 
   return h('div', {
     style: {

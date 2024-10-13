@@ -11,6 +11,7 @@
   "dependencies": {
     "bun": "^1.1.30",
     "libsodium-wrappers-sumo": "^0.7.15",
-    "preact": "^10.24.2"
+    "preact": "^10.24.2",
+    "uuid": "^10.0.0"
   }
 }
