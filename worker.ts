@@ -1,6 +1,10 @@
 import _sodium from 'libsodium-wrappers-sumo';
 import { v4 as uuidv4 } from 'uuid';
 
+
+const API_SERVER = 'api.crossmap.dev';
+
+
 await _sodium.ready;
 const sodium = _sodium;
 
@@ -71,7 +75,10 @@ onmessage = async (e) => {
       const session = sodium.crypto_sign_keypair();
       session.publicKeyBase64 = sodium.to_base64(session.publicKey);
       session.privateKeyBase64 = sodium.to_base64(session.privateKey);
-      console.log('response', await login(user, session, 'api.crossmap.dev'));
+      const response = await login(user, session, API_SERVER);
+      session.createdAt = response.sessionCreatedAt;
+      session.expiresAt = response.sessionExpiresAt;
+      user.id = response.sessionUser;
       postMessage({ type: 'login', payload: { session, user } });
     }
   }

@@ -99,10 +99,16 @@ const LoginForm = ({ setAuth }) => {
 
 const ShowAuth = ({ auth: { user, session } }) => {
   return h('div', null, [
+    h('h3', null, 'User ID:'),
+    h('p', null, user.id),
     h('h3', null, 'User Public Key:'),
     h('p', null, user.publicKeyBase64),
     h('h3', null, 'User Private Key:'),
     h('p', null, user.privateKeyBase64),
+    h('h3', null, 'Session Created At:'),
+    h('p', null, session.createdAt),
+    h('h3', null, 'Session Expires At:'),
+    h('p', null, session.expiresAt),
     h('h3', null, 'Session Public Key:'),
     h('p', null, session.publicKeyBase64),
     h('h3', null, 'Session Private Key:'),
