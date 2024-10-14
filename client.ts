@@ -8,7 +8,7 @@ const API_SERVER = 'api.crossmap.dev';
 const worker = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
 
 
-const LoginForm = ({ setAuth, server }) => {
+const LoginForm = ({ setAuth, setError, server }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [processing, setProcessing] = useState(false);
@@ -18,8 +18,16 @@ const LoginForm = ({ setAuth, server }) => {
       const { type, payload } = e.data;
       switch (type) {
         case 'login': {
-          setProcessing(false);
-          setAuth(payload);
+          if (payload instanceof Error) {
+            console.log(e);
+            console.log(payload.message);
+            setError(payload.message);
+            setProcessing(false);
+          } else {
+            setAuth(payload);
+            setError(null);
+            setProcessing(false);
+          }
         }
       }
     }
@@ -29,12 +37,13 @@ const LoginForm = ({ setAuth, server }) => {
     return h('div', {
       style: {
         display: 'flex',
-        flexDirection: 'row',
+        flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
       }
     }, [
-      h('h3', null, 'Logging you in...')
+      h('h3', null, 'Logging you in...'),
+      h('span', { className: 'spinner' }),
     ]);
   }
 
@@ -81,6 +90,7 @@ const LoginForm = ({ setAuth, server }) => {
       type: 'submit',
       onClick: (e: any) => {
         e.preventDefault();
+        setError(null);
         setProcessing(true);
         worker.postMessage({
           type: 'login',
@@ -123,11 +133,12 @@ const ShowAuth = ({ auth: { user, session } }) => {
 
 const App = () => {
   const [auth, setAuth] = useState(null);
+  const [error, setError] = useState(null);
   const server = API_SERVER;
 
   const content = auth
     ? h(ShowAuth, { auth })
-    : h(LoginForm, { setAuth, server });
+    : h(LoginForm, { setAuth, setError, server });
 
   return h('div', {
     style: {
@@ -157,11 +168,14 @@ const App = () => {
     h('div', {
       style: {
         display: 'flex',
-        flexDirection: 'row',
+        flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
       }
-    }, [
+    }, error ? [
+      content,
+      h('span', { style: { color: 'red' } }, error),
+    ] : [
       content,
     ]),
   ]);

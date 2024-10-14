@@ -6,6 +6,14 @@ await _sodium.ready;
 const sodium = _sodium;
 
 
+class RequestError extends Error {
+  constructor(message, status) {
+    super(message);
+    this.status = status;
+  }
+}
+
+
 const stringToSign = (requestId, method, host, path, query) => {
   return `${requestId} ${method} ${host}${path}${query}`;
 }
@@ -31,18 +39,24 @@ const signedRequestHeaders = (requestId, method, host, path, query, keypair) => 
 const request = async (method, host, path, query, keypair, body = null) => {
   const requestId = uuidv4();
   const headers = signedRequestHeaders(requestId, method, host, path, query, keypair);
+
   headers['Content-Type'] = 'application/json';
   headers['Accept'] = 'application/json';
+
+  const params = { method, headers };
+
   if (body) {
-    return await fetch(`https://${host}${path}${query}`, {
-      method, headers, body: JSON.stringify(body)
-    }).then(response => response.json());
-  } else {
-    return await fetch(`https://${host}${path}${query}`, { method, headers })
-      .then(response => response.json());
+    params.body = JSON.stringify(body);
   }
+
+  const response = await fetch(`https://${host}${path}${query}`, params);
+  if (!response.ok) {
+    throw new RequestError(response.statusText, response.status);
+  }
+
+  return await response.json();
 }
 
 
 export default request;
-export { signedRequestHeaders, signRequest, stringToSign };
+export { signedRequestHeaders, signRequest, stringToSign, RequestError };

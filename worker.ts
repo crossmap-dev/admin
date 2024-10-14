@@ -6,8 +6,10 @@ onmessage = async (e) => {
   switch (type) {
     case 'login': {
       const { username, password, server } = payload;
-      const response = await login(username, password, server);
-      postMessage({ type: 'login', payload: response });
+      postMessage({
+        type: 'login',
+        payload: await login(username, password, server)
+      });
     }
   }
 }
