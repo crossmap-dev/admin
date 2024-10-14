@@ -2,10 +2,13 @@ import { h, render } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 
 
+const API_SERVER = 'api.crossmap.dev';
+
+
 const worker = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
 
 
-const LoginForm = ({ setAuth }) => {
+const LoginForm = ({ setAuth, server }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [processing, setProcessing] = useState(false);
@@ -84,6 +87,7 @@ const LoginForm = ({ setAuth }) => {
           payload: {
             username,
             password,
+            server,
           }
         });
       },
@@ -119,10 +123,11 @@ const ShowAuth = ({ auth: { user, session } }) => {
 
 const App = () => {
   const [auth, setAuth] = useState(null);
+  const server = API_SERVER;
 
   const content = auth
     ? h(ShowAuth, { auth })
-    : h(LoginForm, { setAuth });
+    : h(LoginForm, { setAuth, server });
 
   return h('div', {
     style: {
