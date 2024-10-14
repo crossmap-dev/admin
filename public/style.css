@@ -16,18 +16,6 @@ body {
   align-items: center;
 }
 
-body {
-  background-color: #000;
-  color: #fff;
-}
-
-@media screen and (prefers-color-scheme: light) {
-  body {
-    background-color: #fff;
-    color: #000;
-  }
-}
-
 h1 {
   font-size: 2rem;
   margin: 0;
@@ -64,4 +52,26 @@ h1 {
   0%   {clip-path:polygon(50% 50%,0 0,0 0,0 0,0 0,0 0)}
   50%  {clip-path:polygon(50% 50%,0 0,100% 0,100% 0,100% 0,100% 0)}
   75%, 100%  {clip-path:polygon(50% 50%,0 0,100% 0,100% 100%,100% 100%,100% 100%)}
+}
+
+@media screen and (prefers-color-scheme: dark) {
+  body {
+    background-color: #000;
+    color: #fff;
+  }
+
+  .spinner::before {
+    border-color: #fff;
+  }
+}
+
+@media screen and (prefers-color-scheme: light) {
+  body {
+    background-color: #fff;
+    color: #000;
+  }
+
+  .spinner::before {
+    border-color: #000;
+  }
 }
